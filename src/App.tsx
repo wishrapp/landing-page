@@ -30,11 +30,16 @@ function App() {
               wishr
             </span>
           </div>
-          <div className="hidden md:flex">
-            <button className="px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition">
-              Sign Up for Early Access
-            </button>
-          </div>
+<div className="hidden md:flex">
+  <a
+    href="https://app.wishr.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition"
+  >
+    Try the Web App (Beta)
+  </a>
+</div>
         </div>
       </header>
 
