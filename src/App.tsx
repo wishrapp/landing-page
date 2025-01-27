@@ -99,11 +99,19 @@ function App() {
                   Join the Waitlist <ChevronRight className="ml-2 w-4 h-4" />
                 </button>
               </div>
-              <img
-                src="/gift-hands.webp"
-                alt="Gift with purple ribbon"
-                className="w-full rounded-xl shadow-2xl"
-              />
+              <div className="relative w-full">
+                <img
+                  src="/gift-hands.webp"
+                  alt="Gift with purple ribbon"
+                  className="w-full h-auto rounded-xl shadow-2xl"
+                  loading="eager"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e);
+                    const img = e.target as HTMLImageElement;
+                    img.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
           </div>
         </section>
