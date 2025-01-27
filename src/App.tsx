@@ -5,14 +5,48 @@ import { SocialIcon } from 'react-social-icons';
 function App() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
+  
   const formRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Submitted:', { name, email });
-    setName('');
-    setEmail('');
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus({
+          type: 'success',
+          message: 'Thanks for signing up! Check your email for confirmation.',
+        });
+        setName('');
+        setEmail('');
+      } else {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Something went wrong. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const scrollToForm = () => {
@@ -30,16 +64,16 @@ function App() {
               wishr
             </span>
           </div>
-<div className="flex">
-  <a
-    href="https://app.wishr.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="px-4 py-2 md:px-6 md:py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition text-sm md:text-base"
-  >
-    Try the Web App (Beta)
-  </a>
-</div>
+          <div className="flex">
+            <a
+              href="https://app.wishr.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 md:px-6 md:py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition text-sm md:text-base"
+            >
+              Try the Web App (Beta)
+            </a>
+          </div>
         </div>
       </header>
 
@@ -96,11 +130,11 @@ function App() {
       {/* Testimonials */}
       <section className="py-20 bg-gradient-to-b from-white to-purple-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Loved by Early Users!</h2>
+          <h2 className="text-4xl font-bold text-center mb-16">Love by Beta Testers!</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
-              { quote: "Wishr took the guesswork out of my birthday!", author: "Sarah J." },
-              { quote: "No more awkward moments during gift exchanges. This app is genius!", author: "Michael R." },
+              { quote: "Am loving this app so far. Whenever I come across something I might like, I add it to my wish list, and when it gets closer to Christmas I'll share it with my boyfriend!", author: "Sarah J." },
+              { quote: "Now I won't end up with rubbish I don't want on my birthday! This app means I'll get things I actually will use and wear!", author: "Michael R." },
             ].map((testimonial, i) => (
               <blockquote key={i} className="p-6 bg-white rounded-xl shadow-lg">
                 <p className="text-lg mb-4">"{testimonial.quote}"</p>
@@ -176,6 +210,7 @@ function App() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
+                disabled={isSubmitting}
               />
               <input
                 type="email"
@@ -184,12 +219,27 @@ function App() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
+                disabled={isSubmitting}
               />
+              {submitStatus.type && (
+                <div
+                  className={`p-4 rounded-lg ${
+                    submitStatus.type === 'success'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {submitStatus.message}
+                </div>
+              )}
               <button
                 type="submit"
-                className="w-full px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                disabled={isSubmitting}
+                className={`w-full px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition ${
+                  isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
               >
-                Notify Me
+                {isSubmitting ? 'Signing up...' : 'Notify Me'}
               </button>
             </form>
           </div>
@@ -205,7 +255,7 @@ function App() {
                 <Gift className="w-6 h-6 text-purple-600" />
                 <span className="text-xl font-bold">wishr</span>
               </div>
-              <p className="text-gray-600">Making gifting simple and delightful.</p>
+              <p className="text-gray-600">Your wish list, your way.</p>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Follow Us</h3>
