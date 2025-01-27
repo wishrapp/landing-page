@@ -102,7 +102,7 @@ function App() {
               <img
                 src="/gift-hands.webp"
                 alt="Gift with purple ribbon"
-                className="rounded-xl shadow-2xl"
+                className="w-full rounded-xl shadow-2xl"
               />
             </div>
           </div>
