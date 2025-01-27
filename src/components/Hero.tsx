@@ -25,17 +25,20 @@ export default function Hero({ onJoinWaitlist }: HeroProps) {
             </button>
           </div>
           <div className="relative w-full">
-            <img
-              src="/gift-hands.webp"
-              alt="Gift with purple ribbon"
-              className="w-full h-auto rounded-xl shadow-2xl"
-              loading="eager"
-              onError={(e) => {
-                console.error('Image failed to load:', e);
-                const img = e.target as HTMLImageElement;
-                img.style.display = 'none';
-              }}
-            />
+            <picture>
+              <source srcSet="/gift-hands.webp" type="image/webp" />
+              <img
+                src="/gift-hands.webp"
+                alt="Gift with purple ribbon"
+                className="w-full h-auto rounded-xl shadow-2xl"
+                loading="eager"
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  const img = e.target as HTMLImageElement;
+                  img.style.display = 'none';
+                }}
+              />
+            </picture>
           </div>
         </div>
       </div>
