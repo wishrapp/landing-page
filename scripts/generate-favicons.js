@@ -1,4 +1,6 @@
-import sharp from 'sharp';
+// Simple SVG to PNG conversion using Canvas
+import fs from 'fs/promises';
+import { createCanvas, loadImage } from 'canvas';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -16,13 +18,24 @@ const sizes = [
 
 async function generateFavicons() {
   try {
-    const input = join(publicDir, 'favicon.svg');
+    const svgContent = await fs.readFile(join(publicDir, 'favicon.svg'), 'utf8');
+    const svgUrl = `data:image/svg+xml;base64,${Buffer.from(svgContent).toString('base64')}`;
     
     for (const { size, name } of sizes) {
-      await sharp(input)
-        .resize(size, size)
-        .png()
-        .toFile(join(publicDir, name));
+      const canvas = createCanvas(size, size);
+      const ctx = canvas.getContext('2d');
+      
+      // Clear canvas
+      ctx.fillStyle = 'transparent';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Load and draw SVG
+      const img = await loadImage(svgUrl);
+      ctx.drawImage(img, 0, 0, size, size);
+      
+      // Save as PNG
+      const buffer = canvas.toBuffer('image/png');
+      await fs.writeFile(join(publicDir, name), buffer);
       console.log(`Generated ${name}`);
     }
     
