@@ -26,7 +26,7 @@ export default function Hero({ onJoinWaitlist }: HeroProps) {
           </div>
           <div className="relative w-full">
             <img
-              src="/gift-hands.png"
+              src="/gifthands.webp"
               alt="Gift with purple ribbon"
               className="w-full h-auto rounded-xl shadow-2xl"
               loading="eager"
