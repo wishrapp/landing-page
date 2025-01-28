@@ -11,10 +11,10 @@ export default function Hero({ onJoinWaitlist }: HeroProps) {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Your Wishlist, Your Way
+            Wishr: The Ultimate Wish List Creator
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Avoid awkward gift-giving moments. Share your wishes, let loved ones contribute, and make gifting simple.
+            Create and share wishlists for any occasion. Make gift-giving simple with personalized wish lists for birthdays, weddings, holidays, and more.
           </p>
           <div className="flex justify-center gap-4 mb-12">
             <button 
@@ -27,7 +27,7 @@ export default function Hero({ onJoinWaitlist }: HeroProps) {
           <div className="relative w-full">
             <img
               src="/gifthands.webp"
-              alt="Gift with purple ribbon"
+              alt="Create your perfect wishlist with Wishr - Gift with purple ribbon"
               className="w-full h-auto rounded-xl shadow-2xl"
               loading="eager"
               onError={(e) => {
