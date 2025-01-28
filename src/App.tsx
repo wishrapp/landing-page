@@ -1,37 +1,24 @@
-import React, { useRef } from 'react';
-import SEO from './components/SEO';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import Testimonials from './components/Testimonials';
-import HowItWorks from './components/HowItWorks';
-import ComingSoon from './components/ComingSoon';
-import WaitlistForm from './components/WaitlistForm';
-import Footer from './components/Footer';
-import CookieConsentBanner from './components/CookieConsent';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
+import Privacy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
+import NotFound from './pages/NotFound';
 
 function App() {
-  const formRef = useRef<HTMLDivElement>(null);
-
-  const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <>
-      <SEO />
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
-        <Header />
-        <Hero onJoinWaitlist={scrollToForm} />
-        <Features />
-        <Testimonials />
-        <HowItWorks />
-        <ComingSoon />
-        <WaitlistForm formRef={formRef} />
-        <Footer />
-        <CookieConsentBanner />
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
