@@ -60,6 +60,24 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
     }
   };
 
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+  // Don't render the form if we don't have the reCAPTCHA site key
+  if (!recaptchaSiteKey) {
+    return (
+      <section className="py-20 bg-purple-50" ref={formRef}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+              <p className="font-bold">Configuration Error</p>
+              <p>The waitlist form is temporarily unavailable. Please try again later.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 bg-purple-50" ref={formRef}>
       <div className="container mx-auto px-4">
@@ -87,7 +105,7 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
             />
             <div className="flex justify-center">
               <ReCAPTCHA
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                sitekey={recaptchaSiteKey}
                 onChange={(token) => setRecaptchaToken(token)}
               />
             </div>
