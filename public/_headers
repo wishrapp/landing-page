@@ -1,19 +1,17 @@
-# Handle SPA routing
-/* /index.html 200
+# All static assets
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
 
-# Handle image files with proper caching
+# Image files
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
-
 /*.png
   Cache-Control: public, max-age=31536000, immutable
-
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
-
 /*.svg
   Cache-Control: public, max-age=31536000, immutable
 
-# Fallback for other static assets
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+# HTML files
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
