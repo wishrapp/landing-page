@@ -5,20 +5,6 @@ import { Client } from 'node-mailjet';
 
 dotenv.config();
 
-// Validate environment variables
-const requiredEnvVars = [
-  'MAILJET_API_KEY',
-  'MAILJET_API_SECRET',
-  'MAILJET_LIST_ID',
-  'MAILJET_SENDER_EMAIL'
-];
-
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
-if (missingEnvVars.length > 0) {
-  console.error('Missing required environment variables:', missingEnvVars);
-  process.exit(1);
-}
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -28,19 +14,40 @@ const mailjet = new Client({
   apiSecret: process.env.MAILJET_API_SECRET
 });
 
-app.post('/api/subscribe', async (req, res) => {
-  console.log('Received subscription request:', { ...req.body, email: '***' });
-  
-  const { name, email } = req.body;
+// Verify reCAPTCHA token
+async function verifyRecaptcha(token) {
+  try {
+    const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
+    });
 
-  if (!email || !name) {
-    console.log('Missing required fields');
-    return res.status(400).json({ error: 'Email and name are required' });
+    const recaptchaData = await recaptchaResponse.json();
+    return recaptchaData.success;
+  } catch (error) {
+    console.error('reCAPTCHA verification error:', error);
+    return false;
+  }
+}
+
+app.post('/api/subscribe', async (req, res) => {
+  const { name, email, recaptchaToken } = req.body;
+
+  if (!name || !email || !recaptchaToken) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  // Verify reCAPTCHA
+  const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+  if (!isRecaptchaValid) {
+    return res.status(400).json({ error: 'reCAPTCHA verification failed' });
   }
 
   try {
-    // Check if contact exists using a filter
-    console.log('Checking if contact exists...');
+    // Check if contact exists
     const contactResponse = await mailjet
       .get("contact")
       .request({
@@ -51,11 +58,9 @@ app.post('/api/subscribe', async (req, res) => {
 
     const contacts = contactResponse.body.Data;
     const contactExists = contacts.length > 0;
-    console.log('Contact exists:', contactExists);
 
     if (!contactExists) {
-      // Add contact to Mailjet if they don't exist
-      console.log('Adding new contact to Mailjet...');
+      // Add contact to Mailjet
       await mailjet
         .post("contact")
         .request({
@@ -63,9 +68,8 @@ app.post('/api/subscribe', async (req, res) => {
           Name: name,
           IsExcludedFromCampaigns: false
         });
-      console.log('Contact created successfully');
     } else {
-      console.log('Contact already exists, updating name...');
+      // Update existing contact
       const contactId = contacts[0].ID;
       await mailjet
         .put("contact")
@@ -73,11 +77,9 @@ app.post('/api/subscribe', async (req, res) => {
         .request({
           Name: name
         });
-      console.log('Contact updated successfully');
     }
 
     // Add or update contact in the list
-    console.log('Adding/updating contact in list...');
     try {
       await mailjet
         .post("listrecipient")
@@ -86,57 +88,40 @@ app.post('/api/subscribe', async (req, res) => {
           ListID: parseInt(process.env.MAILJET_LIST_ID, 10),
           IsUnsubscribed: false
         });
-      console.log('Contact added/updated in list successfully');
     } catch (error) {
-      // If contact is already in list, this is fine
       if (!error.message?.includes('already exists')) {
         throw error;
       }
-      console.log('Contact already in list');
     }
 
     // Send welcome email only for new subscribers
     if (!contactExists) {
-      console.log('Preparing to send welcome email...');
-      console.log('Using sender email:', process.env.MAILJET_SENDER_EMAIL);
-      
-      try {
-        const emailResponse = await mailjet
-          .post("send", { version: 'v3.1' })
-          .request({
-            Messages: [
-              {
-                From: {
-                  Email: process.env.MAILJET_SENDER_EMAIL,
-                  Name: "Wishr"
-                },
-                To: [
-                  {
-                    Email: email,
-                    Name: name
-                  }
-                ],
-                Subject: "Welcome to Wishr!",
-                TextPart: `Hi ${name},\n\nThank you for joining the Wishr waitlist! We'll keep you updated on our launch.\n\nBest regards,\nThe Wishr Team`,
-                HTMLPart: `
-                  <h3>Welcome to Wishr!</h3>
-                  <p>Hi ${name},</p>
-                  <p>Thank you for joining the Wishr waitlist! We'll keep you updated on our launch.</p>
-                  <p>Best regards,<br>The Wishr Team</p>
-                `
-              }
-            ]
-          });
-        
-        console.log('Welcome email sent successfully. Response:', emailResponse.body);
-      } catch (emailError) {
-        console.error('Failed to send welcome email:', {
-          error: emailError,
-          statusCode: emailError.statusCode,
-          response: emailError.response?.body
+      await mailjet
+        .post("send", { version: 'v3.1' })
+        .request({
+          Messages: [
+            {
+              From: {
+                Email: process.env.MAILJET_SENDER_EMAIL,
+                Name: "Wishr"
+              },
+              To: [
+                {
+                  Email: email,
+                  Name: name
+                }
+              ],
+              Subject: "Welcome to Wishr!",
+              TextPart: `Hi ${name},\n\nThank you for joining the Wishr waitlist! We'll keep you updated on our launch.\n\nBest regards,\nThe Wishr Team`,
+              HTMLPart: `
+                <h3>Welcome to Wishr!</h3>
+                <p>Hi ${name},</p>
+                <p>Thank you for joining the Wishr waitlist! We'll keep you updated on our launch.</p>
+                <p>Best regards,<br>The Wishr Team</p>
+              `
+            }
+          ]
         });
-        // Don't throw the error - we still want to return success for the subscription
-      }
     }
 
     const message = contactExists 
@@ -146,11 +131,7 @@ app.post('/api/subscribe', async (req, res) => {
     res.status(200).json({ message });
     
   } catch (error) {
-    console.error('Subscription error:', {
-      message: error.message,
-      statusCode: error.statusCode,
-      response: error.response?.body
-    });
+    console.error('Subscription error:', error);
     
     if (error.statusCode === 400) {
       return res.status(400).json({ error: 'Invalid email address.' });
@@ -168,12 +149,70 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
+app.post('/api/contact', async (req, res) => {
+  const { name, email, messageType, message, recaptchaToken } = req.body;
+
+  if (!name || !email || !messageType || !message || !recaptchaToken) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  // Verify reCAPTCHA
+  const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+  if (!isRecaptchaValid) {
+    return res.status(400).json({ error: 'reCAPTCHA verification failed' });
+  }
+
+  try {
+    const messageTypeLabels = {
+      work: 'Work Inquiry',
+      issue: 'App Issue Report',
+      other: 'General Inquiry'
+    };
+
+    await mailjet
+      .post('send', { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: process.env.MAILJET_SENDER_EMAIL,
+              Name: 'Wishr Contact Form'
+            },
+            To: [
+              {
+                Email: 'support@wishr.com',
+                Name: 'Wishr Support'
+              }
+            ],
+            Subject: `[${messageTypeLabels[messageType]}] New message from ${name}`,
+            TextPart: `
+Name: ${name}
+Email: ${email}
+Type: ${messageTypeLabels[messageType]}
+
+Message:
+${message}
+            `,
+            HTMLPart: `
+<h3>New Contact Form Submission</h3>
+<p><strong>Name:</strong> ${name}</p>
+<p><strong>Email:</strong> ${email}</p>
+<p><strong>Type:</strong> ${messageTypeLabels[messageType]}</p>
+<p><strong>Message:</strong></p>
+<p>${message.replace(/\n/g, '<br>')}</p>
+            `
+          }
+        ]
+      });
+
+    res.status(200).json({ message: 'Message sent successfully' });
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Environment:', {
-    MAILJET_LIST_ID: process.env.MAILJET_LIST_ID,
-    MAILJET_SENDER_EMAIL: process.env.MAILJET_SENDER_EMAIL,
-    NODE_ENV: process.env.NODE_ENV
-  });
 });

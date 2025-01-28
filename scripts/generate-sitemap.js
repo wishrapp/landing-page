@@ -6,12 +6,10 @@ async function generateSitemap() {
   try {
     const links = [
       { url: '/', changefreq: 'daily', priority: 1 },
-      { url: '/about', changefreq: 'monthly', priority: 0.8 },
       { url: '/privacy', changefreq: 'monthly', priority: 0.5 },
       { url: '/terms', changefreq: 'monthly', priority: 0.5 },
       { url: '/contact', changefreq: 'monthly', priority: 0.7 },
-      { url: '/faq', changefreq: 'weekly', priority: 0.8 },
-      // Don't include 404 page in sitemap as it's not meant to be crawled
+      { url: '/faq', changefreq: 'weekly', priority: 0.8 }
     ];
 
     const stream = new SitemapStream({ hostname: 'https://wishr.com' });

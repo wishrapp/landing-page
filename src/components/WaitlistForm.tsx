@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface WaitlistFormProps {
   formRef: React.RefObject<HTMLDivElement>;
@@ -12,9 +13,18 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
     type: 'success' | 'error' | null;
     message: string;
   }>({ type: null, message: '' });
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!recaptchaToken) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Please complete the reCAPTCHA verification'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: '' });
 
@@ -24,7 +34,7 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, recaptchaToken }),
       });
 
       const data = await response.json();
@@ -36,6 +46,7 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
         });
         setName('');
         setEmail('');
+        setRecaptchaToken(null);
       } else {
         throw new Error(data.error || 'Failed to subscribe');
       }
@@ -74,6 +85,12 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
               required
               disabled={isSubmitting}
             />
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                onChange={(token) => setRecaptchaToken(token)}
+              />
+            </div>
             {submitStatus.type && (
               <div
                 className={`p-4 rounded-lg ${
@@ -87,9 +104,9 @@ export default function WaitlistForm({ formRef }: WaitlistFormProps) {
             )}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !recaptchaToken}
               className={`w-full px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition ${
-                isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+                (isSubmitting || !recaptchaToken) ? 'opacity-75 cursor-not-allowed' : ''
               }`}
             >
               {isSubmitting ? 'Signing up...' : 'Notify Me'}
