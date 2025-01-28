@@ -21,7 +21,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.vercel.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://analytics.vercel.com https://www.google.com/recaptcha/; frame-src https://www.google.com/recaptcha/;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.vercel.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: https://www.google-analytics.com; font-src 'self' data:; connect-src 'self' https://analytics.vercel.com https://www.google.com/recaptcha/ https://www.google-analytics.com; frame-src https://www.google.com/recaptcha/;"
         },
         {
           "key": "Cross-Origin-Embedder-Policy",
