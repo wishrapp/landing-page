@@ -8,8 +8,8 @@ export default function Footer() {
     <footer className="bg-white border-t border-purple-100">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and description - full width on mobile */}
-          <div className="col-span-1 md:col-span-2">
+          {/* Logo and description */}
+          <div>
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <Gift className="w-6 h-6 text-purple-600" />
               <span className="text-xl font-bold">wishr</span>
@@ -17,9 +17,9 @@ export default function Footer() {
             <p className="text-gray-600">Your wish list, your way.</p>
           </div>
 
-          {/* Links and Legal sections - side by side on mobile */}
-          <div className="grid grid-cols-2 col-span-1 md:col-span-1 gap-8 md:gap-0">
-            <div>
+          {/* Links and Legal sections - side by side on mobile, separate columns on desktop */}
+          <div className="grid grid-cols-2 md:grid-cols-1 md:col-span-1">
+            <div className="mb-8 md:mb-0">
               <h3 className="font-semibold mb-4">Links</h3>
               <ul className="space-y-2">
                 <li><Link to="/faq" className="text-gray-600 hover:text-purple-600">FAQ</Link></li>
@@ -27,6 +27,9 @@ export default function Footer() {
                 <li><Link to="/wishlist/occasions" className="text-gray-600 hover:text-purple-600">Occasions</Link></li>
               </ul>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-1 md:col-span-1">
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
@@ -36,8 +39,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Social section - full width on mobile */}
-          <div className="col-span-1">
+          {/* Social section */}
+          <div>
             <h3 className="font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
               <SocialIcon 
