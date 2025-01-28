@@ -12,11 +12,6 @@ export default function Header() {
             wishr
           </span>
         </Link>
-        <nav className="hidden md:flex items-center space-x-6 mr-6">
-          <Link to="/about" className="text-gray-600 hover:text-purple-600">About</Link>
-          <Link to="/faq" className="text-gray-600 hover:text-purple-600">FAQ</Link>
-          <Link to="/contact" className="text-gray-600 hover:text-purple-600">Contact</Link>
-        </nav>
         <div className="flex">
           <a
             href="https://app.wishr.com"
