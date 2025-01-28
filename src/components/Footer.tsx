@@ -17,9 +17,10 @@ export default function Footer() {
             <p className="text-gray-600">Your wish list, your way.</p>
           </div>
 
-          {/* Links and Legal sections - side by side on mobile, separate columns on desktop */}
-          <div className="grid grid-cols-2 md:grid-cols-1 md:col-span-1">
-            <div className="mb-8 md:mb-0">
+          {/* Links and Legal sections container - side by side on mobile */}
+          <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-8">
+            {/* Links section */}
+            <div>
               <h3 className="font-semibold mb-4">Links</h3>
               <ul className="space-y-2">
                 <li><Link to="/faq" className="text-gray-600 hover:text-purple-600">FAQ</Link></li>
@@ -27,9 +28,8 @@ export default function Footer() {
                 <li><Link to="/wishlist/occasions" className="text-gray-600 hover:text-purple-600">Occasions</Link></li>
               </ul>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-1 md:col-span-1">
+            {/* Legal section */}
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
